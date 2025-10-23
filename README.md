@@ -1,24 +1,124 @@
-# SonarQube with Docker
+# Guía Teórica de SonarQube
 
-This document explains how to set up and run SonarQube using Docker to analyze the code quality of a .NET project and integrate it into a basic workflow.
+## Introducción a SonarQube
+
+SonarQube es una plataforma de código abierto desarrollada por SonarSource para la inspección continua de la calidad del código. Su principal objetivo es detectar y analizar automáticamente problemas en el código fuerte para mejorar su calidad y seguridad.
+
+## Características Principales
+
+### 1. Análisis Estático de Código
+
+- **Detección temprana** de bugs, vulnerabilidades y olores de código
+- Soporte para **múltiples lenguajes** de programación
+- **Reglas personalizables** según las necesidades del proyecto
+
+### 2. Métricas de Calidad
+
+- **Cobertura de código**
+- **Deuda técnica** cuantificada
+- **Duplicación de código**
+- **Complejidad ciclomática**
+- **Mantenibilidad** del código
+
+### 3. Integración Continua
+
+- Soporte para **CI/CD**
+- Integración con **GitHub Actions, Jenkins, Azure DevOps**, etc.
+- Análisis en tiempo real
+
+## Arquitectura de SonarQube
+
+### Componentes principales
+
+1. **SonarQube Server**
+   - Procesa los informes de análisis
+   - Almacena resultados en la base de datos
+   - Proporciona la interfaz web
+
+2. **SonarQube Database**
+   - Almacena la configuración
+   - Guarda los resultados del análisis
+   - Mantiene el historial de métricas
+
+3. **SonarScanners**
+   - Ejecutan el análisis del código
+   - Se ejecutan en máquinas de integración continua o en local
+   - Generan informes que se envían al servidor
+
+## Métricas Clave
+
+1. **Fiabilidad**
+   - Bugs
+   - Tasa de fallos
+   - Tiempo medio entre fallos
+
+2. **Seguridad**
+   - Vulnerabilidades
+   - Puntos de inyección
+   - Controles de acceso
+
+3. **Mantenibilidad**
+   - Código duplicado
+   - Complejidad ciclomática
+   - Cumplimiento de estándares
+
+4. **Cobertura**
+   - Cobertura de pruebas unitarias
+   - Cobertura de condiciones
+   - Cobertura de líneas
+
+## Flujo de Trabajo Típico
+
+1. **Configuración inicial**
+   - Instalación del servidor
+   - Configuración de la base de datos
+   - Definición de reglas de calidad
+
+2. **Integración con el flujo de desarrollo**
+   - Configuración de análisis automático
+   - Integración con herramientas de CI/CD
+   - Definición de umbrales de calidad
+
+3. **Monitoreo continuo**
+   - Revisión de informes
+   - Identificación de tendencias
+   - Toma de decisiones basada en métricas
+
+## Beneficios de Usar SonarQube
+
+- **Mejora continua** de la calidad del código
+- **Detección temprana** de problemas
+- **Estandarización** del código
+- **Reducción** de la deuda técnica
+- **Documentación automática** de la calidad del código
+
+## Recursos Adicionales
+
+- [Documentación Oficial de SonarQube](https://docs.sonarqube.org/)
+- [Guías de Buenas Prácticas](https://docs.sonarqube.org/latest/user-guide/concepts/)
+- [Foro de la Comunidad](https://community.sonarsource.com/)
+
+## Contribuir
+
+SonarQube es un proyecto de código abierto. Las contribuciones son bienvenidas a través de [GitHub](https://github.com/SonarSource/sonarqube).
+
+---
+*Última actualización: Octubre 2023*
+
 
 ---
 
-## **Prerequisites**
+## Cómo Ejecutar SonarQube con Docker
 
-- Docker and Docker Compose installed on your machine.
-- .NET project configured with unit tests.
-- Internet connection.
+### Requisitos Previos
 
----
+- Docker y Docker Compose instalados en tu sistema
+- Al menos 4GB de RAM disponibles (8GB recomendado)
+- Al menos 2 núcleos de CPU
 
-## **1. Setting Up Docker for SonarQube**
+### Pasos para la Ejecución
 
-SonarQube requires two containers: one for the SonarQube server and another for the PostgreSQL database. We'll use Docker Compose to simplify the setup.
-
-### **Step 1: Create the `docker-compose.yml` file**
-
-Create a `docker-compose.yml` file with the following content:
+1. **Crea un archivo `docker-compose.yml`** con la siguiente configuración:
 
 ```yaml
 version: '3.8'
@@ -35,6 +135,8 @@ services:
       - SONAR_JDBC_PASSWORD=sonar
     depends_on:
       - sonarqube_db
+    networks:
+      - sonarnet
 
   sonarqube_db:
     image: postgres:14
@@ -45,167 +147,51 @@ services:
       - POSTGRES_DB=sonar
     volumes:
       - sonarqube_db_data:/var/lib/postgresql/data
+    networks:
+      - sonarnet
+
+networks:
+  sonarnet:
+    driver: bridge
 
 volumes:
   sonarqube_db_data:
 ```
 
----
-
-## **2. Running SonarQube with Docker**
-
-### **Step 1: Start the containers**
-
-Run the following command in the folder where the `docker-compose.yml` file is located:
+2. **Inicia los contenedores** con el siguiente comando:
 
 ```bash
 docker-compose up -d
 ```
 
-This command:
-- Downloads the necessary images for SonarQube and PostgreSQL.
-- Creates and runs the containers in the background.
+3. **Accede a la interfaz web** de SonarQube en tu navegador:
+   - URL: http://localhost:9000
+   - Usuario: `admin`
+   - Contraseña: `admin` (se te pedirá cambiarla en el primer inicio)
 
-### **Step 2: Verify that SonarQube is running**
+4. **Configura tu primer proyecto**:
+   - Haz clic en "Create Project"
+   - Sigue el asistente para configurar el análisis de tu código
 
-1. Open your browser and go to [http://localhost:9000](http://localhost:9000).
-2. Log in with the default credentials:
-   - Username: `admin`
-   - Password: `admin`
-3. Change the default password to a new one.
+### Comandos Útiles
 
----
+- **Detener los contenedores**:
+  ```bash
+  docker-compose down
+  ```
 
-## **3. Configuring SonarQube for Your Project**
+- **Ver logs de los contenedores**:
+  ```bash
+  docker-compose logs -f
+  ```
 
-### **Step 1: Create a new project**
+- **Reiniciar SonarQube**:
+  ```bash
+  docker-compose restart sonarqube
+  ```
 
-1. In the SonarQube dashboard, go to "Projects" > "Create Project".
-2. Enter a name for your project (e.g., `CSharp-UnitTesting-Basics`).
-3. Generate an access token and save it. You'll need it later.
+### Solución de Problemas Comunes
 
-### **Step 2: Configure the analysis**
-
-Create a `sonar-project.properties` file in the root of your repository with the following content:
-
-```properties
-sonar.projectKey=CSharp-UnitTesting-Basics
-sonar.host.url=http://localhost:9000
-sonar.login=YOUR_GENERATED_TOKEN
-
-sonar.sources=UnitTestingBasics
-sonar.tests=Tests
-sonar.test.inclusions=Tests/**/*.cs
-sonar.language=cs
-sonar.dotnet.visualstudio.solution.file=UnitTestingBasics.sln
-```
-
-Replace `YOUR_GENERATED_TOKEN` with the token you generated earlier.
-
----
-
-## **4. Analyzing Your .NET Project**
-
-We'll use the SonarScanner to analyze the code.
-
-### **Step 1: Install the SonarScanner**
-
-1. Install the global tool:
-
-   ```bash
-   dotnet tool install --global dotnet-sonarscanner
-   ```
-
-2. Verify that it's installed correctly:
-
-   ```bash
-   dotnet sonarscanner --version
-   ```
-
-### **Step 2: Run the analysis**
-
-1. Start the analysis:
-
-   ```bash
-   dotnet sonarscanner begin /k:"CSharp-UnitTesting-Basics" /d:sonar.login="YOUR_GENERATED_TOKEN" /d:sonar.host.url="http://localhost:9000"
-   ```
-
-2. Build your solution:
-
-   ```bash
-   dotnet build UnitTestingBasics.sln
-   ```
-
-3. Run tests with coverage:
-
-   ```bash
-   dotnet test --collect:"Code Coverage"
-   ```
-
-4. Finish the analysis and send the data to SonarQube:
-
-   ```bash
-   dotnet sonarscanner end /d:sonar.login="YOUR_GENERATED_TOKEN"
-   ```
-
----
-
-## **5. Automating with GitHub Actions**
-
-You can integrate this workflow into GitHub Actions to automatically run the analysis on every change to the `main` branch.
-
-### **Workflow File: `.github/workflows/sonar.yml`**
-
-```yaml
-name: SonarQube Analysis
-
-on:
-  push:
-    branches:
-      - main
-
-jobs:
-  sonarQube:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: 7.0
-
-      - name: Install SonarScanner for .NET
-        run: dotnet tool install --global dotnet-sonarscanner
-
-      - name: SonarQube Begin
-        run: dotnet sonarscanner begin /k:"CSharp-UnitTesting-Basics" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="http://localhost:9000"
-
-      - name: Build Solution
-        run: dotnet build UnitTestingBasics.sln
-
-      - name: Run Tests with Coverage
-        run: dotnet test --collect:"Code Coverage"
-
-      - name: SonarQube End
-        run: dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
-```
-
-### **Set the Token in GitHub**
-
-1. Go to your GitHub repository.
-2. Navigate to "Settings" > "Secrets and variables" > "Actions".
-3. Create a new secret called `SONAR_TOKEN` and paste the token generated in SonarQube.
-
----
-
-## **6. Viewing Results**
-
-1. After running the analysis, check the results in the SonarQube dashboard.
-2. Observe metrics such as:
-   - Test coverage.
-   - Bugs, vulnerabilities, and code smells.
-   - Code duplication.
-
+- **Problemas de memoria**: Si SonarQube no inicia correctamente, verifica que tengas suficiente memoria RAM disponible.
+- **Puerto en uso**: Si el puerto 9000 está en uso, modifica el puerto en el archivo `docker-compose.yml`.
+- **Persistencia de datos**: Los datos de la base de datos se guardan en un volumen de Docker llamado `sonarqube_db_data`.

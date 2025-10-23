@@ -1,5 +1,4 @@
 # Guía Teórica de SonarQube
-
 ## Introducción a SonarQube
 
 SonarQube es una plataforma de código abierto desarrollada por SonarSource para la inspección continua de la calidad del código. Su principal objetivo es detectar y analizar automáticamente problemas en el código fuerte para mejorar su calidad y seguridad.
